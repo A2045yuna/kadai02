@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <link rel="stylesheet" href="css/sample.css" />
+    <!--   import font file -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
+      rel="stylesheet"
+    />
+    <title>じゃんけん</title>
+  </head>
+
+  <body>
+    <header>
+      <h1>じゃんけん</h1>
+    </header>
+
+    <main>
+      <div id="rules">
+        <div id="games">
+          <lable
+            ><input
+              type="radio"
+              name="num-of-times"
+              checked
+              id="3games"
+            />3回勝負</lable
+          >
+          <lable
+            ><input
+              type="radio"
+              name="num-of-times"
+              id="5games"
+            />5回勝負</lable
+          >
+        </div>
+        <div>
+          <input
+            type="checkbox"
+            name="is-draw-included"
+          />あいこをカウントしない
+        </div>
+        <input type="button" value="このルールで始める" id="rules-determined" />
+      </div>
+      <div class="imgs">
+        <img id="rock" src="/img/janken_gu.png" alt="グー" />
+        <img id="scissors" src="/img/janken_choki.png" alt="チョキ" />
+        <img id="paper" src="/img/janken_pa.png" alt="パー" />
+      </div>
+      <!-- <ul>
+        <li id="rock">グー</li>
+        <li id="scissors">チョキ</li>
+        <li id="paper">パー</li>
+      </ul> -->
+      <div class="imgs">
+        <img
+          src=""
+          alt="コンピュータの手"
+          id="pc_hand_img"
+          style="display: none"
+        />
+      </div>
+      <div>コンピュータの出した手は？「<span id="pc_hands">なに？</span>」</div>
+      <div id="judgment">勝負！</div>
+      <div>
+        <span id="num-of-done">0</span> / <span id="num-of-games">3</span>
+      </div>
+      <div>勝利数　<span id="num-of-win">0</span>回</div>
+    </main>
+
+    <footer></footer>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+      let numOfDone = 0; // games done
+      let numOfWin = 0;
+      let numOfGames = 3;
+      let radioVal = $('input[name="num-of-times"]'); // value of radio button
+      let checkboxVal = $('input[name="is-draw-included"]'); // value of checkbox
+      let isDrawExcluede = checkboxVal.prop("checked");
+      let isRuleDetermined = false;
+      let pcHandImg = $("#pc_hand_img");
+      console.log(isDrawExcluede);
+
+      checkboxVal.change(function () {
+        // チェックボックスの更新を感知
+        isDrawExcluede = checkboxVal.prop("checked");
+        console.log(isDrawExcluede);
+      });
+
+      $('input[name="num-of-times"]:radio').change(function () {
+        // ラジオボタンの更新を検知
+        let elements = $('input[name="num-of-times"]:radio');
+        let length = elements.length;
+        let checkedValue = "";
+        for (var i = 0; i < length; i++) {
+          if (elements[i].checked) {
+            checkedValue = elements[i].id;
+            console.log(checkedValue);
+            if (checkedValue == "3games") {
+              $("#num-of-games").html(3);
+              numOfGames = 3;
+            } else {
+              $("#num-of-games").html(5);
+              numOfGames = 5;
+            }
+          }
+        }
+      });
+
+      $("#rules-determined").click(function () {
+        isRuleDetermined = true;
+        // ラジオボタン、チェックボックスの値->disabled
+        radioVal.prop("disabled", true);
+        checkboxVal.prop("disabled", true);
+      });
+
+      function janken(usersHand) {
+        // console.log('janken called,  usersHand is' + usersHand);
+        let view = "";
+        let pcHand = Math.ceil(Math.random() * 3);
+        // console.log('pcHand is ' + pcHand);
+        if (pcHand == 1) {
+          pcHandImg.attr("src", "/img/janken_gu.png");
+          pcHandImg.attr("style", "display:block");
+          view = "グー";
+          if (usersHand == "rock") {
+            draw();
+          } else if (usersHand == "scissors") {
+            lose();
+          } else if (usersHand == "paper") {
+            win();
+          }
+        } else if (pcHand == 2) {
+          pcHandImg.attr("src", "/img/janken_choki.png");
+          pcHandImg.attr("style", "display:block");
+          view = "チョキ";
+          if (usersHand == "rock") {
+            win();
+          } else if (usersHand == "scissors") {
+            draw();
+          } else if (usersHand == "paper") {
+            lose();
+          }
+        } else if (pcHand == 3) {
+          pcHandImg.attr("src", "/img/janken_pa.png");
+          pcHandImg.attr("style", "display:block");
+          view = "パー";
+          if (usersHand == "rock") {
+            lose();
+          } else if (usersHand == "scissors") {
+            win();
+          } else if (usersHand == "paper") {
+            draw();
+          }
+        }
+
+        $("#pc_hands").html(view);
+        $("#num-of-done").html(numOfDone);
+        // console.log(numOfGames);
+        // console.log(done);
+        if (numOfGames == numOfDone) {
+          alert("勝負終了");
+          radioVal.prop("disabled", false);
+          checkboxVal.prop("disabled", false);
+          numOfDone = 0;
+          numOfWin = 0;
+          isRuleDetermined = false;
+          $("#num-of-done").html(numOfDone);
+          $("#num-of-win").html(numOfWin);
+          pcHandImg.attr("src", "");
+          pcHandImg.attr("style", "display:none");
+          $("#pc_hands").html("なに");
+          $("#judgment").html("勝負！");
+        }
+      }
+
+      function win() {
+        $("#judgment").html("あなたの勝ち");
+        numOfDone++;
+        numOfWin++;
+        $("#num-of-win").html(numOfWin);
+      }
+
+      function lose() {
+        numOfDone++;
+        $("#judgment").html("あなたの負け");
+      }
+
+      function draw() {
+        if (!isDrawExcluede) {
+          numOfDone++;
+        }
+        $("#judgment").html("あいこです");
+      }
+
+      $("#rock").on("click", function () {
+        if (isRuleDetermined) {
+          janken("rock");
+        } else {
+          alert("ルールを決定してください");
+        }
+      });
+      $("#scissors").on("click", function () {
+        if (isRuleDetermined) {
+          janken("scissors");
+        } else {
+          alert("ルールを決定してください");
+        }
+      });
+      $("#paper").on("click", function () {
+        if (isRuleDetermined) {
+          janken("paper");
+        } else {
+          alert("ルールを決定してください");
+        }
+      });
+    </script>
+  </body>
+</html>
